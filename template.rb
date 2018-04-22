@@ -32,6 +32,14 @@ def add_gems
   gem 'bootstrap', '~> 4.0.0.beta'
   gem 'webpacker', '~> 3.0'
   gem 'foreman', '~> 0.84.0'
+  gem_group :development, :test do
+    gem 'rspec-rails', '~> 3.6.0'
+    gem 'spring-commands-rspec'
+  end
+
+  gem_group :test do
+    gem 'shoulda-matchers', '~> 3.1'
+  end
 end
 
 def set_application_name
@@ -100,15 +108,14 @@ def copy_templates
   directory "app", force: true
   directory "config", force: true
   directory "lib", force: true
+  directory "spec/models", force: true
 
   route "get '/terms', to: 'home#terms'"
   route "get '/privacy', to: 'home#privacy'"
 end
 
 def add_webpack
-  puts "started installing web packer"
   rails_command "webpacker:install"
-  puts "eding installing web packer"
 end
 
 def add_foreman
@@ -119,6 +126,24 @@ def stop_spring
   run "spring stop"
 end
 
+def add_rspec
+  generate "rspec:install"
+  insert_into_file(
+    ".rspec",
+    "\n--format documentation\n",
+    after: "--require spec_helper"
+  )
+  append_to_file(
+    "spec/rails_helper.rb",
+    "\n\n Shoulda::Matchers.configure do |config|\n    config.integrate do |with|\n     with.test_framework :rspec\n     with.library :rails\n    end\n end"
+  )
+  insert_into_file(
+    "config/application.rb",
+    "\n\n    config.generators do |g|\n     g.test_framework :rspec,\n     fixures: false,\n     view_specs: false,\n     routing_specs: false,\n     helper_specs: false\n    end",
+    after: "config.load_defaults 5.2"
+  )
+  run "bundle exec spring binstub rspec"
+end
 
 
 # Main setup
@@ -128,6 +153,8 @@ add_gems
 after_bundle do
   set_application_name
   stop_spring
+  add_rspec
+  stop_spring
   add_users
   add_bootstrap
   add_foreman
@@ -136,8 +163,9 @@ after_bundle do
   copy_templates
 
   # Migrate
-  rails_command "db:create"
+  rails_command "db:create:all"
   rails_command "db:migrate"
+  rails_command "db:migrate", env: 'test'
 
   # Migrations must be done before this
 
