@@ -34,6 +34,7 @@ def add_gems
   gem 'foreman', '~> 0.84.0'
   gem_group :development, :test do
     gem 'rspec-rails', '~> 3.6.0'
+    gem 'factory_girl_rails', '~> 4.8.0'
     gem 'spring-commands-rspec'
   end
 
@@ -109,6 +110,7 @@ def copy_templates
   directory "config", force: true
   directory "lib", force: true
   directory "spec/models", force: true
+  directory "spec/factories", force: true
 
   route "get '/terms', to: 'home#terms'"
   route "get '/privacy', to: 'home#privacy'"
@@ -139,7 +141,7 @@ def add_rspec
   )
   insert_into_file(
     "config/application.rb",
-    "\n\n    config.generators do |g|\n     g.test_framework :rspec,\n     fixures: false,\n     view_specs: false,\n     routing_specs: false,\n     helper_specs: false\n    end",
+    "\n\n    config.generators do |g|\n     g.test_framework :rspec,\n     request_specs: false,\n     view_specs: false,\n     routing_specs: false,\n     helper_specs: false\n    end",
     after: "config.load_defaults 5.2"
   )
   run "bundle exec spring binstub rspec"
