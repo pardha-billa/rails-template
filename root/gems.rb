@@ -11,7 +11,7 @@ def add_gems
   gem 'foreman', '~> 0.84.0'
   gem_group :development, :test do
     gem 'rspec-rails', '~> 3.6.0'
-    gem 'factory_girl_rails', '~> 4.8.0'
+    gem "factory_bot_rails", "~> 4.10.0"
     gem 'spring-commands-rspec'
   end
 
