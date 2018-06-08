@@ -5,14 +5,15 @@ def add_rspec
     "\n--format documentation\n",
     after: "--require spec_helper"
   )
-  append_to_file(
-    "spec/rails_helper.rb",
-    shoulda_config
-  )
   insert_into_file(
     "config/application.rb",
     rspec_generators_config,
     after: "class Application < Rails::Application"
+  )
+  insert_into_file(
+    "spec/rails_helper.rb",
+    "\n   Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f  }",
+    after: "require 'rspec/rails'"
   )
   run "bundle exec spring binstub rspec"
 end
@@ -30,16 +31,4 @@ def rspec_generators_config
     end
 
  HEREDOC
-end
-
-def shoulda_config
- <<-HEREDOC
-
-Shoulda::Matchers.configure do |config|
-  config.integrate do |with|
-    with.test_framework :rspec
-    with.library :rails
-  end
-end
-HEREDOC
 end

@@ -18,6 +18,7 @@ def copy_application_templates
   directory "lib", force: true
   directory "spec/models", force: true
   directory "spec/factories", force: true
+  directory "spec/support", force: true
 
   route "get '/terms', to: 'home#terms'"
   route "get '/privacy', to: 'home#privacy'"
